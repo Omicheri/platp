@@ -18,6 +18,7 @@
                 <input type="number" name="likes" id="likes" class="form-control" required>
             </div>
             <button type="submit" class="btn btn-primary">Créer</button>
+            <a href="{{ route('plats.index', $plat) }}">Retour</a>
         </form>
     </div>
 @endsection
