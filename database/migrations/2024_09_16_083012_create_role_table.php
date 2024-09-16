@@ -13,15 +13,19 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        $role = Role::create(['name' => 'administrator']);
+        $admin = Role::create(['name' => 'administrator']);
+        $user = Role::create(['name' => 'user']);
 
         $permission_create = Permission::create(['name' => 'create plats']);
         $permission_edit = Permission::create(['name' => 'edit plats']);
         $permission_destroy = Permission::create(['name' => 'destroy plats']);
+        $permission_view = Permission::create(['name' => 'view plats']);
 
-        $role->givePermissionTo($permission_create);
-        $role->givePermissionTo($permission_edit);
-        $role->givePermissionTo($permission_destroy);
+        $admin->givePermissionTo($permission_create);
+        $admin->givePermissionTo($permission_edit);
+        $admin->givePermissionTo($permission_destroy);
+        $admin->givePermissionTo($permission_view);
+        $user->givePermissionTo($permission_view);
 
     }
 
