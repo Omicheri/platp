@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Plat;
 use App\Observers\PlatObserver;
+use Nette\Utils\Paginator;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -21,5 +23,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Plat::observe(PlatObserver::class);
+        \Illuminate\Pagination\Paginator::useBootstrap();
     }
 }
