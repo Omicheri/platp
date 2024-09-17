@@ -2,8 +2,18 @@
 
 @section('content')
     @if (session('admin'))
-        <div class="alert alert-warning">
+        <div class="alert alert-danger">
             {{ session('admin') }}
+        </div>
+    @endif
+    @if (session('isfav'))
+        <div class="alert alert-success">
+            {{ session('isfav') }}
+        </div>
+    @endif
+    @if (session('notfav'))
+        <div class="alert alert-danger">
+            {{ session('notfav') }}
         </div>
     @endif
 <table>

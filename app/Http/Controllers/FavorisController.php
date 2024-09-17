@@ -15,10 +15,12 @@ class FavorisController extends Controller
 
         if ($favori) {
             $user->favoris()->detach($plat->id);
+            redirect()->back()->with('notfav','Vous avez supprimer le plat de vos favoris');
         } else {
             $user->favoris()->attach($plat->id);
+            redirect()->back()->with('isfav','Vous avez ajouté le plat à vos favoris');
         }
-        
+
         return back();
     }
 }
