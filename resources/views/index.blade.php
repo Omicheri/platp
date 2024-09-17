@@ -35,7 +35,8 @@
         <th>Image</th>
         <th>Créateur</th>
         <th>Favori</th>
-
+        <th></th>
+        <th><a href="{{route('plats.create')}}">Create</a></th>
     </tr>
     </thead>
     <tbody>
@@ -94,7 +95,7 @@
 
     </tbody>
 
-    <a href="{{route('plats.create')}}">Create</a>
+
 </table>
 
 <nav aria-label="Page navigation" >{{ $plats->links() }}</nav>

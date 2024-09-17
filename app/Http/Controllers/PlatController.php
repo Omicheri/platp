@@ -32,22 +32,16 @@ class PlatController extends Controller
 
     public function store(Request $request, Plat $plat)
     {
-
-        $faker = \Faker\Factory::create();
-
-        $faker->addProvider(new \Xvladqt\Faker\LoremFlickrProvider($faker));
-
         $this->validated($request, $plat);
         $plat = new Plat();
         $plat->Titre = $request->get('titre');
         $plat->Recette = $request->get('recette');
         $plat->Likes = $request->get('likes');
-        $plat->Image = $faker->imageUrl($width = 320, $height = 240, ['dish']);
+        $plat->Image = fake()->imageUrl($width = 320, $height = 240, 'dish');
         $plat->user_id = Auth::id();
         $plat->save();
 
         return redirect()->route('plats.show', $plat);
-
     }
 
     public function edit(Request $request, Plat $plat)
@@ -60,7 +54,11 @@ class PlatController extends Controller
 
     public function update(Request $request, Plat $plat)
     {
-        $this->validated($request, $plat);
+        $request->validate([
+            'titre' => 'required|string|max:255|unique:plats,titre,' . $plat->id,
+            'recette' => 'required|string|max:2048',
+            'likes' => 'required|integer',
+        ]);
         $plat->update($request->all());
         $plat->save();
 
@@ -80,10 +78,11 @@ class PlatController extends Controller
         }
         return redirect()->route('plats.index');
     }
-    private function validated(Request $request, Plat $plat)
+    private function validated(Request $request, $platId = null)
     {
+
         $request->validate([
-            'titre' => 'required|string|max:255',
+            'titre' => 'required|string|max:255|unique:plats',
             'recette' => 'required|string|max:2048',
             'likes' => 'required|integer',]);
     }
