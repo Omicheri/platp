@@ -19,6 +19,7 @@
 <table>
     <thead>
     <tr>
+        <th>Id_Plat</th>
         <th>Titre</th>
         <th>Likes</th>
         <th>Image</th>
@@ -33,6 +34,7 @@
     @endif
     @foreach($plats as $plat)
         <tr>
+            <td>{{$plat->id}}</td>
             <td>{{ $plat->Titre }}</td>
 
             <td>{{ $plat->Likes }}</td>
