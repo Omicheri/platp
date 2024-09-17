@@ -54,11 +54,7 @@ class PlatController extends Controller
 
     public function update(Request $request, Plat $plat)
     {
-        $request->validate([
-            'titre' => 'required|string|max:255|unique:plats,titre,' . $plat->id,
-            'recette' => 'required|string|max:2048',
-            'likes' => 'required|integer',
-        ]);
+        $this->validated($request, $plat);
         $plat->update($request->all());
         $plat->save();
 
@@ -78,13 +74,20 @@ class PlatController extends Controller
         }
         return redirect()->route('plats.index');
     }
-    private function validated(Request $request, $platId = null)
-    {
 
-        $request->validate([
-            'titre' => 'required|string|max:255|unique:plats',
-            'recette' => 'required|string|max:2048',
-            'likes' => 'required|integer',]);
+    private function validated(Request $request, ?Plat $plat = null): array
+    {
+        $rules = [
+            'titre' => [
+                'required',
+                'max:255',
+                $plat ? "unique:plats,titre,{$plat->id}" : 'unique:plats'
+            ],
+            "recette" => "required|max:2048",
+            'likes' => 'required|integer',
+        ];
+        return $request->validate($rules);
     }
+
 
 }
