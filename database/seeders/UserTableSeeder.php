@@ -20,7 +20,7 @@ class UserTableSeeder extends Seeder
             'name' => 'Omer Akay',
             'email' => 'omer@example.com',
             'password' => Hash::make('omer'),])->assignRole('administrator');;
-        User::factory()->count(200)->create();
+        User::factory()->count(20)->create();
 
 
         foreach (User::all() as $user) {
