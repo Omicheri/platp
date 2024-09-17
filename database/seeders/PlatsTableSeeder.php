@@ -20,7 +20,9 @@ class PlatsTableSeeder extends Seeder
         Plat::factory()->count(30)->create();
         foreach (User::all() as $user) {
             $platIds = Plat::inRandomOrder()->take(rand(1,5))->pluck('id');
+
             $user->favoris()->attach($platIds);
+
             $user->assignRole('user');
         }
     }

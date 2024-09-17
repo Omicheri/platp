@@ -16,6 +16,16 @@
             {{ session('notfav') }}
         </div>
     @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if (session('dest'))
+        <div class="alert alert-danger">
+            {{ session('dest') }}
+        </div>
+    @endif
 <table>
     <thead>
     <tr>

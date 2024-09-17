@@ -25,7 +25,7 @@ class PlatFactory extends Factory
             'titre' => $this->faker->Name(),
             'recette' => $this->faker->paragraphs(rand(2, 5), true),
             'likes' => $this->faker->numberBetween(1, 100),
-            'user_id'=> User::pluck('id')->random(),
+            'user_id'=> User::inRandomOrder()->pluck('id')->first,
             'image' => $this->faker->imageUrl($width = 640, $height = 480 ),
         ];
     }
