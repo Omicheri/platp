@@ -15,13 +15,17 @@ class UserTableSeeder extends Seeder
      */
     public function run(): void
     {
+
         User::factory()->create([
             'name' => 'Omer Akay',
             'email' => 'omer@example.com',
             'password' => Hash::make('omer'),])->assignRole('administrator');;
-        User::factory()->count(10)->create();
+        User::factory()->count(200)->create();
+
+
         foreach (User::all() as $user) {
             $user->assignRole('user');
 
+        }
     }
-}}
+}

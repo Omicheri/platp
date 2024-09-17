@@ -17,7 +17,11 @@ class PlatsTableSeeder extends Seeder
 
     public function run(): void
     {
-        Plat::factory()->count(10)->create();
-
+        Plat::factory()->count(300)->create();
+        foreach (User::all() as $user) {
+            $platIds = Plat::inRandomOrder()->take(rand(1, 3))->pluck('id')->toArray();
+            $user->favoris()->attach($platIds);
+            $user->assignRole('user');
+        }
     }
 }
