@@ -26,17 +26,38 @@
             {{ session('dest') }}
         </div>
     @endif
+
+    <!-- Formulaire de recherche -->
+    <form action="{{ route('plats.index') }}" method="GET">
+        <input type="text" name="search" placeholder="Rechercher un plat ou un créateur" value="{{ request('search') }}">
+        <button type="submit">Rechercher</button>
+    </form>
+
 <table>
     <thead>
     <tr>
-        <th>Id_Plat</th>
-        <th>Titre</th>
-        <th>Likes</th>
+        <!--fusion de search sort et direction dans un tableau avec arraymerge  recuperant les parametre actuel de l'ulr avec request -->
+        <th>Id_Plat
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'id', 'direction' => 'asc'])) }}">🔼</a>
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'id', 'direction' => 'desc'])) }}">🔽</a>
+        </th>
+        <th>Titre
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'Titre', 'direction' => 'asc'])) }}">🔼</a>
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'Titre', 'direction' => 'desc'])) }}">🔽</a>
+        </th>
+        <th>Likes
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'Likes', 'direction' => 'desc'])) }}">🔼</a>
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'Likes', 'direction' => 'asc'])) }}">🔽</a>
+        </th>
         <th>Image</th>
-        <th>Créateur</th>
+        <th>Créateur
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'user_id', 'direction' => 'asc'])) }}">🔼</a>
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'user_id', 'direction' => 'desc'])) }}">🔽</a>
+        </th>
         <th>Favori</th>
         <th></th>
         <th><a href="{{route('plats.create')}}">Create</a></th>
+        <th><a href="{{route('topcrea')}}">Classement</a></th>
     </tr>
     </thead>
     <tbody>
@@ -97,7 +118,7 @@
 
 
 </table>
-
-<nav aria-label="Page navigation" >{{ $plats->links() }}</nav>
+                                   <!-- ajout les parametres actuelle à chaque lien de pagination généré -->
+    <nav aria-label="Page navigation">{{ $plats->appends(request()->query())->links() }}</nav>
 @endsection
 
