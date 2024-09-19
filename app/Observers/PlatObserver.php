@@ -3,7 +3,6 @@
 namespace App\Observers;
 
 use App\Models\Plat;
-
 use App\Notifications\SendMail;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,8 +14,8 @@ class PlatObserver
     public function created(Plat $plat): void
     {
         if (Auth::check()) {
-            $messages["hi"] = "Salut, ton plat a bien été enregistré " . Auth::user()->name;
-            $plat->user->notify(new SendMail($messages));
+            $messages = "Salut, ton plat a bien été enregistré " . Auth::user()->name;
+            $plat->user->notify(new SendMail($plat, $messages));
         }
 
 

@@ -2,24 +2,26 @@
 
 namespace App\Notifications;
 
+use App\Models\Plat;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use function MongoDB\BSON\fromJSON;
+
 
 class SendMail extends Notification
 {
     use Queueable;
 
-    private $messages;
+    private $plat;
+    private $message;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($messages)
+    public function __construct(Plat $plat, string $message)
     {
-    $this->messages = $messages;
+        $this->plat = $plat;
+        $this->message = $message;
     }
 
     /**
@@ -38,9 +40,10 @@ class SendMail extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line($this->messages['hi'])
-                    ->action('Notification Action', url('/plats'))
-                    ->line('Thank you for u');
+            ->line($this->message)
+            ->line('Title: ' . $this->plat->Titre)
+            ->action('Liste PLats', url('/plats/'. $this->plat->id))
+            ->line('Thanksssssssssssssssssssssssssssssssss');
     }
 
     /**
@@ -51,7 +54,8 @@ class SendMail extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'plat_id' => $this->plat->id,
+            'titre' => $this->plat->titre,
         ];
     }
 }

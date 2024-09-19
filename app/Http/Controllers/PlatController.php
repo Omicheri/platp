@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePlatRequest;
 use App\Models\Plat;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -41,19 +42,20 @@ class PlatController extends Controller
         return view('show', compact('plat'));
     }
 
-    public function create(Request $request, Plat $plat)
+    public function create(StorePlatRequest $request, Plat $plat)
     {
 
         if (!$request->user()->can('create plats')) {
             return redirect()->back()->with('admin', 'Vous n\'avez pas l\'autorisation de crée un plat');
+
         }
         return view('create', compact('plat'));
     }
 
 
-    public function store(Request $request, Plat $plat)
+    public function store(StorePlatRequest $request, Plat $plat)
     {
-        $this->validated($request, $plat);
+
         $plat = new Plat();
         $plat->Titre = $request->get('titre');
         $plat->Recette = $request->get('recette');
@@ -65,17 +67,15 @@ class PlatController extends Controller
         return redirect()->route('plats.show', $plat);
     }
 
-    public function edit(Request $request, Plat $plat)
+    public function edit(StorePlatRequest $request, Plat $plat)
     {
-        if ($plat->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'Vous ne pouvez pas modifier ce plat car vous n\'êtes pas le créateur de ce dernier');
-        }
+
         return view('edit', compact('plat'));
     }
 
-    public function update(Request $request, Plat $plat)
+    public function update(StorePlatRequest $request, Plat $plat)
     {
-        $this->validated($request, $plat);
+        //Requête HTTP -> Instance de StorePlatRequest -> authorize() -> rules() -> Validation -> Méthode du contrôleur
         $plat->update($request->all());
         $plat->save();
 
@@ -96,19 +96,7 @@ class PlatController extends Controller
         return redirect()->route('plats.index');
     }
 
-    private function validated(Request $request, ?Plat $plat = null): array
-    {
-        $rules = [
-            'titre' => [
-                'required',
-                'max:255',
-                $plat ? "unique:plats,titre,{$plat->id}" : 'unique:plats'
-            ],
-            "recette" => "required|max:2048",
-            'likes' => 'required|integer',
-        ];
-        return $request->validate($rules);
-    }
+
     public function topCreators()
     {
         // Récupère les utilisateurs avec le nombre total de likes de leurs plats

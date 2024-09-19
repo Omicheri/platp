@@ -25,8 +25,16 @@ class PlatFactory extends Factory
             'titre' => $this->faker->Name(),
             'recette' => $this->faker->paragraphs(rand(2, 5), true),
             'likes' => $this->faker->numberBetween(1, 100),
-            'user_id'=> User::inRandomOrder()->pluck('id')->first(),
-            'image' => $this->faker->imageUrl($width = 320, $height = 240 , 'dish'),
+            'image' => $this->faker->imageUrl($width = 320, $height = 240, 'dish'),
+            'user_id'=> '1',
         ];
+    }
+
+    public function configure()
+    {
+        return $this->afterCreating(function (Plat $plat) {
+            $plat->user()->associate(User::inRandomOrder()->pluck('id')->first());
+            $plat->save();
+        });
     }
 }

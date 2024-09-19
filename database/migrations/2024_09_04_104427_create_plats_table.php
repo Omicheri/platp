@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('plats', function (Blueprint $table) {
             $table->id();
-            $table->string('Titre')->nullable(false);
-            $table->text('Recette')->nullable(false);
-            $table->string('Likes')->nullable(false);
-            $table->string('Image')->nullable(false);
+            $table->string('Titre');
+            $table->text('Recette');
+            $table->string('Likes');
+            $table->string('Image');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
