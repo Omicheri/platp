@@ -14,13 +14,7 @@ class StorePlatRequest extends FormRequest
     public function authorize(): bool
     {
 
-        $user = Auth::user();
-
-
-        if ($user->hasRole('administrator')) {
-            return true;
-        }
-        return false;
+      return true;
 
     }
     protected function failedAuthorization()

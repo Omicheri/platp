@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\Plat;
 use App\Notifications\SendMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PlatObserver
 {
@@ -34,7 +35,8 @@ class PlatObserver
      */
     public function deleted(Plat $plat): void
     {
-        //
+        //nettoyer les favoris associés à un plat lorsqu’il est supprimé, sans utiliser onDelete('cascade')
+        DB::table('favoris')->where('plat_id', $plat->id)->delete();
     }
 
     /**

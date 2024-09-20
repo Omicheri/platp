@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-
+    <style>
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
     <h1>Top Créateur</h1>
     <table>
         <thead>
@@ -19,7 +23,7 @@
             </tr>
         @else
             @foreach($users as $index => $user)
-                <tr>
+                <tr @if($user->id === auth()->user()->id) class="highlight" @endif>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>

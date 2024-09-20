@@ -42,11 +42,11 @@ class PlatController extends Controller
         return view('show', compact('plat'));
     }
 
-    public function create(StorePlatRequest $request, Plat $plat)
+    public function create(Request $request, Plat $plat)
     {
 
         if (!$request->user()->can('create plats')) {
-            return redirect()->back()->with('admin', 'Vous n\'avez pas l\'autorisation de crée un plat');
+            return redirect()->back()->with('admin', 'Vous n\'avez pas l\'autorisation de crée un plat car vous n\' êtes pas admin');
 
         }
         return view('create', compact('plat'));
@@ -67,10 +67,20 @@ class PlatController extends Controller
         return redirect()->route('plats.show', $plat);
     }
 
-    public function edit(StorePlatRequest $request, Plat $plat)
+    public function edit(Request $request, Plat $plat)
     {
-
-        return view('edit', compact('plat'));
+        if ($request->user()->can('create plats')) {
+            // L'admin peut modifier n'importe quel plat
+            return view('edit', compact('plat'));
+        } else {
+            // Vérifie si l'utilisateur est le propriétaire du plat
+            if ($request->user()->id === $plat->user_id) {
+                return view('edit', compact('plat'));
+            } else {
+                // Redirige avec un message d'erreur si l'utilisateur n'est pas autorisé
+                return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat.');
+            }
+        }
     }
 
     public function update(StorePlatRequest $request, Plat $plat)
@@ -86,15 +96,20 @@ class PlatController extends Controller
 
     public function destroy(Request $request, Plat $plat)
     {
-        if ($request->user()->can('destroy plats', $plat) && $plat->user_id == Auth::id()) {
-            $plat->delete();
-        } elseif ($plat->user_id !== Auth::id()) {
-            return redirect()->back()->with('dest', 'Vous ne pouvez pas supprimer ce plat car vous n\'êtes pas le créateur de ce dernier');
+        if ($request->user()->can('destroy plats')) {$plat->delete();
+            // L'admin peut modifier n'importe quel plat
+            return redirect()->route('plats.index');
         } else {
-            return redirect()->back()->with('admin', 'Vous n\'avez pas l\'autorisation de supprimer un plat');
+            // Vérifie si l'utilisateur est le propriétaire du plat
+            if ($request->user()->id === $plat->user_id) {
+                return redirect()->route('plats.index');
+            } else {
+                // Redirige avec un message d'erreur si l'utilisateur n'est pas autorisé
+                return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat');
+            }
         }
-        return redirect()->route('plats.index');
     }
+
 
 
     public function topCreators()
