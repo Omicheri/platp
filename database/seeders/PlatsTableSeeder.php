@@ -22,7 +22,7 @@ class PlatsTableSeeder extends Seeder
             $platIds = Plat::inRandomOrder()->take(rand(1,5))->pluck('id');
 
             $user->favoris()->attach($platIds);
-            if (!$user->hasRole('admin')){
+            if (!$user->hasRole('administrator')){
             $user->assignRole('user');}
         }
     }

@@ -23,9 +23,6 @@ class UserTableSeeder extends Seeder
         User::factory()->count(20)->create();
 
 
-        foreach (User::all() as $user) {
-            $user->assignRole('user');
 
-        }
     }
 }
