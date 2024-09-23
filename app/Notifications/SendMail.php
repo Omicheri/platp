@@ -13,7 +13,7 @@ class SendMail extends Notification
 {
     use Queueable;
 
-    private $plat;
+    public $plat;
 
 
 
@@ -45,7 +45,7 @@ class SendMail extends Notification
 
         return (new MailMessage)
             ->line( "Salut, ton plat a bien été enregistré " . Auth::user()->name)
-            ->line('Title: ' . $this->plat->titre)
+            ->line('Title: ' . $this->plat->Titre)
             ->action('Liste PLats', url('/plats/'. $this->plat->id))
             ->line('Thanksssssssssssssssssssssssssssssssss');
     }

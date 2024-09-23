@@ -22,8 +22,8 @@ class PlatsTableSeeder extends Seeder
             $platIds = Plat::inRandomOrder()->take(rand(1,5))->pluck('id');
 
             $user->favoris()->attach($platIds);
-
-            $user->assignRole('user');
+            if (!$user->hasRole('admin')){
+            $user->assignRole('user');}
         }
     }
 }
