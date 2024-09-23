@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
+use App\Jobs\ProcessMail;
 use App\Models\Plat;
-use App\Notifications\SendMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -15,8 +15,10 @@ class PlatObserver
     public function created(Plat $plat): void
     {
         if (Auth::check()) {
-            $messages = "Salut, ton plat a bien été enregistré " . Auth::user()->name;
-            $plat->user->notify(new SendMail($plat, $messages));
+
+
+            ProcessMail::dispatchSync($plat);
+
         }
 
 

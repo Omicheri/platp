@@ -17,10 +17,7 @@ class StorePlatRequest extends FormRequest
       return true;
 
     }
-    protected function failedAuthorization()
-    {
-        abort(403, 'Vous ne pouvez pas modifier ce plat car vous n\'êtes pas le créateur de ce dernier');
-    }
+
     /**
      * Get the validation rules that apply to the request.
      *

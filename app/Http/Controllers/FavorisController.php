@@ -17,11 +17,16 @@ class FavorisController extends Controller
         $favori = $user->favoris()->where('plat_id', $plat->id)->exists();
 
         if ($favori) {
+            $plat->Likes++;
+            $plat->save();
             return redirect()->back()->with('isfav', 'Vous avez ajouté le plat à vos favoris');
         } else {
+            $plat->Likes--;
+            $plat->save();
             return redirect()->back()->with('notfav', 'Vous avez supprimé le plat de vos favoris');
         }
     }
+
 
 
 }

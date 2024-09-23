@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('Titre');
             $table->text('Recette');
-            $table->string('Likes');
+            $table->integer('Likes');
             $table->string('Image');
             $table->foreignId('user_id')->nullable(true)->constrained('users');
             $table->timestamps();

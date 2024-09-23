@@ -54,7 +54,9 @@
             <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'user_id', 'direction' => 'asc'])) }}">🔼</a>
             <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'user_id', 'direction' => 'desc'])) }}">🔽</a>
         </th>
-        <th>Favori</th>
+        <th>Favori
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'is_favori', 'direction' => 'desc'])) }}">🔼</a>
+            <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'is_favori', 'direction' => 'asc'])) }}">🔽</a></th>
         <th></th>
         <th><a href="{{route('plats.create')}}">Create</a></th>
         <th><a href="{{route('topcrea')}}">Classement</a></th>
@@ -103,8 +105,10 @@
                     <button type="submit">
                         @if(auth()->user()->favoris()->where('plat_id', $plat->id)->exists())
                             Retirer des favoris
+
                         @else
                             Ajouter aux favoris
+
                         @endif
 
                     </button>

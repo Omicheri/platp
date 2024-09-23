@@ -28,6 +28,8 @@ class Plat extends Model
         'titre',
         'recette',
         'likes',
+        'Image',
+        'user_id'
     ];
 
     public function favoris(){

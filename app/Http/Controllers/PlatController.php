@@ -12,13 +12,20 @@ use Illuminate\Support\Facades\DB;
 
 class PlatController extends Controller
 {
-    public function index(Request $request)
+public function index(Request $request)
     {
         $sort = $request->get('sort', 'id');
         $direction = $request->get('direction', 'asc');
         $search = $request->get('search', '');
+        $userId = Auth::id();
 
-        $plats = Plat::with(['user', 'favoris'])->where(function ($query) use ($search) {
+        $plats = Plat::with(['user', 'favoris'])
+            //Sous-requête qui compte le nombre de lignes dans la table favoris où plat_id correspond à l’ID du plat actuel et user_id correspond à l’utilisateur actuel et l'assigne à is_favoris.
+            ->select('plats.*')
+            ->withCount(['favoris as is_favori' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            }])
+            ->where(function ($query) use ($search) {
             if ($search) {
                 $query->where('Titre', 'like', "%$search%")
 //Si je ne trouve pas de plats avec ce mot ou cette phrase dans le titre, je veux aussi chercher dans les noms des utilisateurs qui ont créé ces plats.
@@ -56,12 +63,16 @@ class PlatController extends Controller
     public function store(StorePlatRequest $request, Plat $plat)
     {
 
-        $plat = new Plat();
-        $plat->Titre = $request->get('titre');
-        $plat->Recette = $request->get('recette');
-        $plat->Likes = $request->get('likes');
-        $plat->Image = fake()->imageUrl($width = 320, $height = 240, 'dish');
-        $plat->user_id = Auth::id();
+        $data = $request->all();
+
+        // Ajouter 'user_id' et 'Image' aux données
+        $data['user_id'] = Auth::id();
+        $data['Image'] = fake()->imageUrl(320, 240, 'dish');
+
+        // Créer une nouvelle instance de Plat
+        $plat = new Plat($data);
+
+        // Sauvegarder le plat dans la base de données
         $plat->save();
 
         return redirect()->route('plats.show', $plat);
@@ -78,7 +89,7 @@ class PlatController extends Controller
                 return view('edit', compact('plat'));
             } else {
                 // Redirige avec un message d'erreur si l'utilisateur n'est pas autorisé
-                return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat.');
+                return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat .');
             }
         }
     }
