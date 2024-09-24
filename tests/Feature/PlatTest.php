@@ -51,7 +51,7 @@ class PlatTest extends TestCase
 
         $response->assertStatus(302); // Vérifie que la réponse est une redirection
         $response->assertRedirect(route('plats.show', Plat::first())); // Vérifie la redirection vers la route 'plats.show'
-        $this->assertDatabaseHas('plats', ['id' => $plat->id, 'titre' => 'Plat Modifié']);
+        $this->assertDatabaseHas('plats', ['id' => $plat->id, 'titre' => 'Plat Modifié','recette'=>'Description modifiée']);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
