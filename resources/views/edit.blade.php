@@ -24,19 +24,15 @@
 
                             <div class="form-group">
                                 <label for="titre">Titre</label>
-                                <input type="text" class="form-control" id="titre" name="titre" value="{{$plat->Titre }}">
+                                <input type="text" class="form-control" id="titre" name="titre"
+                                       value="{{$plat->Titre }}">
                             </div>
-
                             <div class="form-group">
                                 <label for="recette">Recette</label>
-                                <textarea class="form-control" id="recette" name="recette">{{ $plat->Recette }}</textarea>
+                                <textarea class="form-control" id="recette"
+                                          name="recette">{{ $plat->Recette }}</textarea>
                             </div>
-
-                            <div class="form-group">
-                                <label for="likes">Likes</label>
-                                <input type="number" class="form-control" id="likes" name="likes" value="{{ $plat->Likes }}">
-                            </div>
-                            <a href="{{ route('plats.index', $plat) }}">Retour</a>
+                                <a href="{{ route('plats.index', $plat) }}">Retour</a>
                             <button type="submit" class="btn btn-primary">Sauvegarder</button>
                         </form>
                     </div>

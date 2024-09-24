@@ -66,12 +66,14 @@ public function index(Request $request)
         $data = $request->all();
 
         // Ajouter 'user_id' et 'Image' aux données
+
         $data['user_id'] = Auth::id();
         $data['Image'] = fake()->imageUrl(320, 240, 'dish');
+        $data['Likes'] = fake()->numberBetween(1, 100);
 
         // Créer une nouvelle instance de Plat
-        $plat = new Plat($data);
 
+        $plat = new Plat($data);
         // Sauvegarder le plat dans la base de données
         $plat->save();
 
@@ -107,7 +109,8 @@ public function index(Request $request)
 
     public function destroy(Request $request, Plat $plat)
     {
-        if ($request->user()->can('destroy plats')) {$plat->delete();
+        if ($request->user()->hasRole('administrator')) {
+            $plat->delete();
             // L'admin peut modifier n'importe quel plat
             return redirect()->route('plats.index');
         } else {
@@ -120,8 +123,6 @@ public function index(Request $request)
             }
         }
     }
-
-
 
     public function topCreators()
     {

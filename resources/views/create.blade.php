@@ -22,10 +22,7 @@
                 <label for="recette">Recette</label>
                 <textarea name="recette" id="recette" class="form-control" required></textarea>
             </div>
-            <div class="form-group">
-                <label for="likes">Likes</label>
-                <input type="number" name="likes" id="likes" class="form-control" required>
-            </div>
+
             <button type="submit" class="btn btn-primary">Créer</button>
             <a href="{{ route('plats.index', $plat) }}">Retour</a>
         </form>

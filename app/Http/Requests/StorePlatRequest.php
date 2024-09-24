@@ -35,7 +35,7 @@ class StorePlatRequest extends FormRequest
                 $platId ? "unique:plats,titre,{$platId}" : 'unique:plats'
             ],
             'recette' => 'required|max:2048',
-            'likes' => 'required|integer',
+            'likes' => 'integer',
         ];
     }
 }

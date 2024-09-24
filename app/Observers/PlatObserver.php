@@ -35,6 +35,11 @@ class PlatObserver
     /**
      * Handle the Plat "deleted" event.
      */
+    public function deleting(Plat $plat): void
+    {
+        //nettoyer les favoris associés à un plat lorsqu’il est supprimé, sans utiliser onDelete('cascade')
+        DB::table('favoris')->where('plat_id', $plat->id)->delete();
+    }
     public function deleted(Plat $plat): void
     {
         //nettoyer les favoris associés à un plat lorsqu’il est supprimé, sans utiliser onDelete('cascade')

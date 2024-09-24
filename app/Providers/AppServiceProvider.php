@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use App\Observers\UserObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Plat;
 use App\Observers\PlatObserver;
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Plat::observe(PlatObserver::class);
+
         \Illuminate\Pagination\Paginator::useBootstrap();
     }
 }
