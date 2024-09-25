@@ -134,6 +134,7 @@ public function index(Request $request)
             ->get();
 
         return view('classement', compact('users'));
+
     }
 
 }

@@ -23,8 +23,9 @@
             </tr>
         @else
             @foreach($users as $index => $user)
-                <tr @if($user->id === auth()->user()->id) class="highlight" @endif>
-                    <td>{{ $index + 1 }}</td>
+                <tr @if(auth()->check() && $user->id === auth()->user()->id) class="highlight" @endif>
+
+                <td>{{ $index + 1 }}</td>
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->total_likes }}</td>
