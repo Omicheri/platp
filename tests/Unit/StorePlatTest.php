@@ -49,7 +49,7 @@ class StorePlatTest extends TestCase
     public function it_fails_delete_if_user_is_not_admin()
     {
         $user = User::factory()->createOne();
-        $plat = Plat::factory()->createOne(['user_id' => $user->id]);
+        $plat = Plat::factory()->createOne(['user_id' => 4]);
 
         $response = $this->actingAs($user)->delete("/plats/{$plat->id}");
 
@@ -198,11 +198,9 @@ class StorePlatTest extends TestCase
         $plats = $response->viewData('plats');
         $this->assertEquals([1, 1, 0], $plats->pluck('is_favori')->toArray());
 
-        // Test de tri par Favori en ordre croissant
         $response = $this->get('/plats?sort=is_favori&direction=asc');
         $response->assertStatus(200);
         $plats = $response->viewData('plats');
         $this->assertEquals([0, 1, 1], $plats->pluck('is_favori')->toArray());
-
     }
 }
