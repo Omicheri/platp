@@ -4,6 +4,8 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Plat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Crypt;
 use Tests\TestCase;
 
 class PlatTest extends TestCase
@@ -13,7 +15,7 @@ class PlatTest extends TestCase
     public function test_get_dishes(): void
     {
         $user = User::factory()->create();
-        // Créer des plats avec factory
+
            Plat::factory()->count(3)->create();
            $response = $this->actingAs($user)->get('/plats');
            $response->assertStatus(200);}
@@ -38,20 +40,19 @@ class PlatTest extends TestCase
 
 
     #[\PHPUnit\Framework\Attributes\Test]
-    public function it_can_update_a_plat()
+    public function it_can_update_a_plat(): void
     {
-        $user = User::factory()->create();
-        $plat = Plat::factory()->create(['user_id' => $user->id]);
+        $plat = Plat::factory()->create();
 
-        $response = $this->actingAs($user)->put("/plats/{$plat->id}", [
+        $response = $this->actingAs($plat->user)->patch("/plats/{$plat->id}", [
             'titre' => 'Plat Modifié',
-            'recette' => 'Description modifiée',
-
+            'recette' =>'Description modifiée'
         ]);
 
-        $response->assertStatus(302); // Vérifie que la réponse est une redirection
-        $response->assertRedirect(route('plats.show', Plat::first())); // Vérifie la redirection vers la route 'plats.show'
-        $this->assertDatabaseHas('plats', ['id' => $plat->id, 'titre' => 'Plat Modifié','recette'=>'Description modifiée']);
+        $response->assertStatus(Response::HTTP_FOUND);
+        $response->assertRedirect(route('plats.show', $plat));
+        $this->assertEquals($plat->refresh()->Titre,'Plat Modifié');
+        $this->assertEquals($plat->refresh()->Recette,'Description modifiée');
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

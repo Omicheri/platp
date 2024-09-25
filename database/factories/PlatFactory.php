@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PlatFactory extends Factory
 {
-    protected $model = Plat::class;
+
 
     /**
      * Define the model's default state.
@@ -26,15 +26,17 @@ class PlatFactory extends Factory
             'recette' => $this->faker->paragraphs(rand(2, 5), true),
             'likes' => $this->faker->numberBetween(1, 100),
             'image' => $this->faker->imageUrl($width = 320, $height = 240, 'dish'),
-
         ];
     }
 
     public function configure()
     {
-        return $this->afterCreating(function (Plat $plat) {
-            $plat->user()->associate(User::inRandomOrder()->pluck('id')->first());
-            $plat->save();
+        return $this->afterMaking(function (Plat $plat) {
+            $plat->user()->existsOr(
+                function () use ($plat) {
+                    $plat->user()->associate(User::factory()->createOne());
+                }
+            );
         });
     }
 }
