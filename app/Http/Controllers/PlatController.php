@@ -25,7 +25,9 @@ public function index(Request $request)
             ->withCount(['favoris as is_favori' => function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             }])
+
             ->where(function ($query) use ($search) {
+
             if ($search) {
                 $query->where('Titre', 'like', "%$search%")
 //Si je ne trouve pas de plats avec ce mot ou cette phrase dans le titre, je veux aussi chercher dans les noms des utilisateurs qui ont créé ces plats.
@@ -36,6 +38,7 @@ public function index(Request $request)
         })
             ->when($sort === 'Likes', function ($query) use ($direction) {
                 return $query->orderByRaw('CAST(Likes AS UNSIGNED) ' . $direction);
+
             }, function ($query) use ($sort, $direction) {
                 return $query->orderBy($sort, $direction);
             })
