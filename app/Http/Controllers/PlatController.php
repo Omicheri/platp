@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class PlatController extends Controller
 {
-public function index(Request $request)
+    public function index(Request $request)
     {
         $sort = $request->get('sort', 'id');
         $direction = $request->get('direction', 'asc');
@@ -25,20 +25,19 @@ public function index(Request $request)
             ->withCount(['favoris as is_favori' => function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             }])
-
             ->where(function ($query) use ($search) {
 
-            if ($search) {
-                $query->where('Titre', 'like', "%$search%")
+                if ($search) {
+                    $query->where('Titre', 'like', "%$search%")
 //Si je ne trouve pas de plats avec ce mot ou cette phrase dans le titre, je veux aussi chercher dans les noms des utilisateurs qui ont créé ces plats.
-                    ->orWhereHas('user', function ($query) use ($search) {
-                        $query->where('name', 'like', "%$search%");
-                    });
-            }
-        })
+                        ->orWhereHas('user', function ($query) use ($search) {
+                            $query->where('name', 'like', "%$search%");
+                        });
+                }
+            })
             ->when($sort === 'Likes', function ($query) use ($direction) {
+                //like as non negatif
                 return $query->orderByRaw('CAST(Likes AS UNSIGNED) ' . $direction);
-
             }, function ($query) use ($sort, $direction) {
                 return $query->orderBy($sort, $direction);
             })
@@ -54,30 +53,20 @@ public function index(Request $request)
 
     public function create(Request $request, Plat $plat)
     {
-
-        if (!$request->user()->can('create plats')) {
-            return redirect()->back()->with('admin', 'Vous n\'avez pas l\'autorisation de crée un plat car vous n\' êtes pas admin');
-
-        }
         return view('create', compact('plat'));
     }
 
 
     public function store(StorePlatRequest $request, Plat $plat)
     {
-
         $data = $request->all();
-
-        // Ajouter 'user_id' et 'Image' aux données
 
         $data['user_id'] = Auth::id();
         $data['Image'] = fake()->imageUrl(320, 240, 'dish');
         $data['Likes'] = fake()->numberBetween(1, 100);
 
-        // Créer une nouvelle instance de Plat
-
         $plat = new Plat($data);
-        // Sauvegarder le plat dans la base de données
+
         $plat->save();
 
         return redirect()->route('plats.show', $plat);
@@ -85,19 +74,14 @@ public function index(Request $request)
 
     public function edit(Request $request, Plat $plat)
     {
-        if ($request->user()->can('create plats')) {
-            // L'admin peut modifier n'importe quel plat
+        $user = $request->user();
+        if ($user->hasRole('administrator') || $user->id === $plat->user_id) {
             return view('edit', compact('plat'));
         } else {
-            // Vérifie si l'utilisateur est le propriétaire du plat
-            if ($request->user()->id === $plat->user_id) {
-                return view('edit', compact('plat'));
-            } else {
-                // Redirige avec un message d'erreur si l'utilisateur n'est pas autorisé
-                return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat .');
-            }
+            return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat .');
         }
     }
+
 
     public function update(StorePlatRequest $request, Plat $plat)
     {
@@ -105,27 +89,21 @@ public function index(Request $request)
         $plat->update($request->all());
         $plat->save();
 
-
         return redirect()->route('plats.show', $plat);
     }
 
 
     public function destroy(Request $request, Plat $plat)
     {
-        if ($request->user()->hasRole('administrator')) {
+        $user = $request->user();
+        if ($user->hasRole('administrator') || $user->id === $plat->user_id) {
             $plat->delete();
-            // L'admin peut modifier n'importe quel plat
             return redirect()->route('plats.index');
         } else {
-            // Vérifie si l'utilisateur est le propriétaire du plat
-            if ($request->user()->id === $plat->user_id) {
-                return redirect()->route('plats.index');
-            } else {
-                // Redirige avec un message d'erreur si l'utilisateur n'est pas autorisé
-                return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat');
-            }
+            return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat');
         }
     }
+
 
     public function topCreators()
     {

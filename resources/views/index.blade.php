@@ -59,6 +59,7 @@
             <a href="{{ route('plats.index', array_merge(request()->query(), ['sort' => 'is_favori', 'direction' => 'asc'])) }}">🔽</a></th>
         <th></th>
         <th><a href="{{route('plats.create')}}">Create</a></th>
+        <th></th>
         <th><a href="{{route('topcrea')}}">Classement</a></th>
     </tr>
     </thead>
