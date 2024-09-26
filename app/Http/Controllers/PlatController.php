@@ -20,13 +20,14 @@ class PlatController extends Controller
         $userId = Auth::id();
 
         $plats = Plat::with(['user', 'favoris'])
-            //Sous-requête qui compte le nombre de lignes dans la table favoris où plat_id correspond à l’ID du plat actuel et user_id correspond à l’utilisateur actuel et l'assigne à is_favoris.
+//Sous-requête qui compte le nombre de lignes dans la table favoris où plat_id correspond à l’ID du plat actuel et user_id correspond à l’utilisateur actuel et l'assigne à is_favoris.
+
             ->select('plats.*')
             ->withCount(['favoris as is_favori' => function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             }])
-            ->where(function ($query) use ($search) {
 
+            ->where(function ($query) use ($search) {
                 if ($search) {
                     $query->where('Titre', 'like', "%$search%")
 //Si je ne trouve pas de plats avec ce mot ou cette phrase dans le titre, je veux aussi chercher dans les noms des utilisateurs qui ont créé ces plats.
@@ -35,6 +36,7 @@ class PlatController extends Controller
                         });
                 }
             })
+
             ->when($sort === 'Likes', function ($query) use ($direction) {
                 //like as non negatif
                 return $query->orderByRaw('CAST(Likes AS UNSIGNED) ' . $direction);
@@ -74,12 +76,7 @@ class PlatController extends Controller
 
     public function edit(Request $request, Plat $plat)
     {
-        $user = $request->user();
-        if ($user->hasRole('administrator') || $user->id === $plat->user_id) {
-            return view('edit', compact('plat'));
-        } else {
-            return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat .');
-        }
+        return view('edit', compact('plat'));
     }
 
 
@@ -95,13 +92,8 @@ class PlatController extends Controller
 
     public function destroy(Request $request, Plat $plat)
     {
-        $user = $request->user();
-        if ($user->hasRole('administrator') || $user->id === $plat->user_id) {
             $plat->delete();
             return redirect()->route('plats.index');
-        } else {
-            return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat');
-        }
     }
 
 
