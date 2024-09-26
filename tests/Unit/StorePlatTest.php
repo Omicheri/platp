@@ -13,18 +13,20 @@ class StorePlatTest extends TestCase
     /** @test */
     public function it_fails_validation_if_titre_is_not_unique()
     {
+        $user = User::factory()->createOne();
+        $existingPlat = Plat::factory()->create(['titre' => 'Plat Unique','user_id'=>$user->id]);
 
-        $existingPlat = Plat::factory()->create(['titre' => 'Plat Unique']);
-
-        $response = $this->post('/plats', [
+        $response = $this->actingAs($user)->post('/plats', [
             'titre' => 'Plat Unique',
             'recette' => 'Recette du plat',
             'Likes' => 10,
-            'Image' => 'pfkd'
+            'Image' => 'pfkd',
+            'user_id' =>'4'
         ]);
 
 
         $response->assertStatus(302);
+
         $response->assertSessionHasErrors('titre');
     }
 
@@ -139,7 +141,7 @@ class StorePlatTest extends TestCase
         $plat1 = Plat::factory()->create(['user_id' => $user3->id, 'likes' => 1]);
         $plat2 = Plat::factory()->create(['user_id' => $user4->id, 'likes' => 1]);
 
-        $response = $this->get("/plats?search=Delicius kcid");
+        $response = $this->actingAs($user3)->get("/plats?search=Delicius kcid");
 
         $response->assertStatus(200);
         $response->assertSee('Delicius kcid');
