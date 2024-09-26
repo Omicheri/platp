@@ -20,25 +20,19 @@ class PlatController extends Controller
         $userId = Auth::id();
 
         $plats = Plat::with(['user', 'favoris'])
-//Sous-requête qui compte le nombre de lignes dans la table favoris où plat_id correspond à l’ID du plat actuel et user_id correspond à l’utilisateur actuel et l'assigne à is_favoris.
-
             ->select('plats.*')
+//Sous-requête qui compte le nombre de lignes dans la table favoris où plat_id correspond à l’ID du plat actuel et user_id correspond à l’utilisateur actuel et l'assigne à is_favoris.
             ->withCount(['favoris as is_favori' => function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             }])
-
-            ->where(function ($query) use ($search) {
-                if ($search) {
-                    $query->where('Titre', 'like', "%$search%")
 //Si je ne trouve pas de plats avec ce mot ou cette phrase dans le titre, je veux aussi chercher dans les noms des utilisateurs qui ont créé ces plats.
-                        ->orWhereHas('user', function ($query) use ($search) {
-                            $query->where('name', 'like', "%$search%");
-                        });
-                }
+            ->when($search, function ($query, $search) {
+                $query->where('Titre', 'like', "%$search%")
+                    ->orWhereHas('user', function ($query) use ($search) {
+                        $query->where('name', 'like', "%$search%");
+                    });
             })
-
             ->when($sort === 'Likes', function ($query) use ($direction) {
-                //like as non negatif
                 return $query->orderByRaw('CAST(Likes AS UNSIGNED) ' . $direction);
             }, function ($query) use ($sort, $direction) {
                 return $query->orderBy($sort, $direction);
