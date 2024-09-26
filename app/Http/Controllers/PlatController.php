@@ -59,7 +59,7 @@ class PlatController extends Controller
 
         $data['user_id'] = Auth::id();
         $data['Image'] = fake()->imageUrl(320, 240, 'dish');
-        $data['Likes'] = fake()->numberBetween(1, 100);
+        $data['Likes'] = fake()->numberBetween(1, 10000);
 
         $plat = new Plat($data);
 

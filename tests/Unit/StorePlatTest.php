@@ -14,19 +14,18 @@ class StorePlatTest extends TestCase
     public function it_fails_validation_if_titre_is_not_unique()
     {
         $user = User::factory()->createOne();
-        $existingPlat = Plat::factory()->create(['titre' => 'Plat Unique','user_id'=>$user->id]);
+        $existingPlat = Plat::factory()->create(['titre' => 'Plat Unique', 'user_id' => $user->id]);
 
         $response = $this->actingAs($user)->post('/plats', [
             'titre' => 'Plat Unique',
             'recette' => 'Recette du plat',
             'Likes' => 10,
             'Image' => 'pfkd',
-            'user_id' =>'4'
+            'user_id' => '4'
         ]);
 
 
         $response->assertStatus(302);
-
         $response->assertSessionHasErrors('titre');
     }
 
@@ -47,6 +46,7 @@ class StorePlatTest extends TestCase
         $response->assertStatus(302);
         $response->assertSessionHasNoErrors();
     }
+
     /** @test */
     public function it_fails_delete_if_user_is_not_admin()
     {
@@ -71,6 +71,7 @@ class StorePlatTest extends TestCase
         $response->assertRedirect(route('plats.index'));
         $this->assertDatabaseMissing('plats', ['id' => $plat->id]);
     }
+
     /** @test */
     public function it_passes_edit_if_title_is_not_modify_in_edit__view()
     {
@@ -119,12 +120,13 @@ class StorePlatTest extends TestCase
         // Vérifie que le nombre de likes a été incrémenté
         $this->assertEquals(0, $plat->fresh()->Likes);
     }
+
     /** @test */
     public function it_can_search_plat_by__title(): void
     {
         $user = User::factory()->createOne();
-        $plat1 = Plat::factory()->create(['titre' => "Delicius dick",'user_id' => $user->id,'likes' => 1]);
-        $plat2 = Plat::factory()->create(['titre' => "Delicius kcid",'user_id' => $user->id,'likes' => 1]);
+        $plat1 = Plat::factory()->create(['titre' => "Delicius dick", 'user_id' => $user->id, 'likes' => 1]);
+        $plat2 = Plat::factory()->create(['titre' => "Delicius kcid", 'user_id' => $user->id, 'likes' => 1]);
 
         $response = $this->actingAs($user)->get("/plats?search=Delicius kcid");
 
@@ -146,6 +148,26 @@ class StorePlatTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Delicius kcid');
         $response->assertDontSee('Delicius dick');
+    }
+    /** @test */
+    public function it_observe_and_deletes_favoris_when_plat_is_deleted()
+    {
+        $user = User::factory()->createOne();
+
+        $plat = Plat::factory()->create(['user_id' => $user->id]);
+
+        $user->favoris()->toggle($plat->id);
+
+        $this->assertDatabaseHas('favoris', [
+            'user_id' => $user->id,
+            'plat_id' => $plat->id,
+        ]);
+        $plat->delete();
+
+        $this->assertDatabaseMissing('favoris', [
+            'user_id' => $user->id,
+            'plat_id' => $plat->id,
+        ]);
     }
 
     /** @test */
@@ -205,4 +227,60 @@ class StorePlatTest extends TestCase
         $plats = $response->viewData('plats');
         $this->assertEquals([0, 1, 1], $plats->pluck('is_favori')->toArray());
     }
+    public function test_administrator_can_create_plat()
+    {
+        $admin = User::factory()->createOne()->assignRole('administrator');
+
+        $response = $this->actingAs($admin)->post('/plats',[
+        'titre' => 'Nouveau Plat',
+            'recette' => 'Description du plat',
+
+        ]);
+
+        $response->assertStatus(Response::HTTP_FOUND); // Vérifie que la réponse est une redirection
+        $response->assertRedirect(route('plats.show', Plat::first())); // Vérifie la redirection vers la route 'plats.show'
+        $this->assertDatabaseHas('plats', ['titre' => 'Nouveau Plat']);
+    }
+
+
+    public function test_administrator_can_delete_any_plat()
+    {
+        $admin = User::factory()->create()->assignRole('administrator');
+        $plat = Plat::factory()->create();
+
+        $response = $this->actingAs($admin)->delete("/plats/{$plat->id}");
+
+        $response->assertStatus(Response::HTTP_FOUND);
+        $response->assertRedirect(route('plats.index'));
+        $this->assertDatabaseMissing('plats', ['id' => $plat->id]);
+    }
+
+    public function test_owner_can_delete_their_own_plat()
+    {
+        $user = User::factory()->create()->assignRole('user');
+
+        $plat = Plat::factory()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user)->delete("/plats/{$plat->id}");
+
+        $response->assertStatus(Response::HTTP_FOUND);
+        $response->assertRedirect(route('plats.index'));
+        $this->assertDatabaseMissing('plats', ['id' => $plat->id]);
+    }
+
+    public function test_non_owner_cannot_delete_plat()
+    {
+        $user = User::factory()->create();
+        $user->assignRole('user');
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('user');
+        $plat = Plat::factory()->create(['user_id' => $otherUser->id]);
+
+        $response = $this->actingAs($user)->delete(route('plats.destroy', $plat));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'Vous devez être administrateur ou propriétaire pour supprimer ce plat');
+    }
+
+
 }

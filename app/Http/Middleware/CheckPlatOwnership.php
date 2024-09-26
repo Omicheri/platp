@@ -23,24 +23,20 @@ class CheckPlatOwnership
             if (!$user->hasRole('administrator')) {
                 return redirect()->back()->with('error', 'Vous devez être administrateur pour créer un plat');
             }
-        }
-
-        if ($routeName === 'plats.destroy') {
+        } elseif ($routeName === 'plats.destroy') {
             $plat = $request->route('plat');
             // Vérification spécifique pour la route 'destroy'
             if (!$user->hasRole('administrator') && $user->id !== $plat->user_id) {
                 return redirect()->back()->with('error', 'Vous devez être administrateur ou propriétaire pour supprimer ce plat');
             }
-        } else {
-            // Vérification générale pour les autres routes
+        } elseif ($routeName === 'plats.update') {
             $plat = $request->route('plat');
-            if ($user->hasRole('administrator') || $user->id === $plat->user_id) {
-                return $next($request);
-            } else {
+            if (!$user->hasRole('administrator') && $user->id !== $plat->user_id) {
                 return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat');
             }
         }
 
         return $next($request);
     }
+
 }

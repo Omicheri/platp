@@ -19,10 +19,6 @@ class UserTableSeeder extends Seeder
         User::factory()->create([
             'name' => 'Omer Akay',
             'email' => 'omer@example.com',
-            'password' => Hash::make('omer'),])->assignRole('administrator');;
-        User::factory()->count(10)->create();
-
-
-
+            'password' => Hash::make('omer'),])->assignRole('administrator');
     }
 }

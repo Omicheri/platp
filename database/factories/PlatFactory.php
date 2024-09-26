@@ -24,7 +24,7 @@ class PlatFactory extends Factory
         return [
             'titre' => $this->faker->Name(),
             'recette' => $this->faker->paragraphs(rand(2, 5), true),
-            'likes' => $this->faker->numberBetween(1, 100),
+            'likes' => $this->faker->numberBetween(1, 10000),
             'image' => $this->faker->imageUrl($width = 320, $height = 240, 'dish'),
         ];
     }
