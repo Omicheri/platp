@@ -18,7 +18,7 @@ class CheckPlatOwnership
         $user = $request->user();
         $routeName = $request->route()->getName();
 
-        if ($routeName === 'plats.create') {
+        if ($routeName === 'plats.create' || $routeName === 'plats.store') {
             // Vérification spécifique pour la route 'create'
             if (!$user->hasRole('administrator')) {
                 return redirect()->back()->with('error', 'Vous devez être administrateur pour créer un plat');
@@ -29,12 +29,13 @@ class CheckPlatOwnership
             if (!$user->hasRole('administrator') && $user->id !== $plat->user_id) {
                 return redirect()->back()->with('error', 'Vous devez être administrateur ou propriétaire pour supprimer ce plat');
             }
-        } elseif ($routeName === 'plats.update') {
+        } elseif ($routeName === 'plats.edit' || $routeName === 'plats.update') {
             $plat = $request->route('plat');
-            if (!$user->hasRole('administrator') && $user->id !== $plat->user_id) {
-                return redirect()->back()->with('error', 'Vous n\'avez pas l\'autorisation de modifier ce plat');
+            if (!$user->hasRole('administrator') || $user->id !== $plat->user_id) {
+                return redirect()->back()->with('error', 'Vous devez être administrateur ou propriétaire pour update ce plat');
             }
         }
+
 
         return $next($request);
     }

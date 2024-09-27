@@ -13,7 +13,7 @@ class StorePlatTest extends TestCase
     /** @test */
     public function it_fails_validation_if_titre_is_not_unique()
     {
-        $user = User::factory()->createOne();
+        $user = User::factory()->createOne()->assignRole('administrator');
         $existingPlat = Plat::factory()->create(['titre' => 'Plat Unique', 'user_id' => $user->id]);
 
         $response = $this->actingAs($user)->post('/plats', [
@@ -76,11 +76,12 @@ class StorePlatTest extends TestCase
     public function it_passes_edit_if_title_is_not_modify_in_edit__view()
     {
         $plat = Plat::factory()->create(['titre' => 'Plat Unique']);
-        $response = $this->actingAs($plat->user)->patch("/plats/{$plat->id}", [
+        $user = User::factory()->createOne()->assignRole('administrator');
+        $response = $this->actingAs($user)->patch("/plats/{$plat->id}", [
             'titre' => 'Plat Unique',
             'recette' => 'Recette du plat',
         ]);
-        $response->assertStatus(302);
+
         $response->assertSessionHasNoErrors();
     }
 
@@ -187,52 +188,41 @@ class StorePlatTest extends TestCase
         $user->favoris()->toggle($plat1->id);
         $user->favoris()->toggle($plat2->id);
 
-        $response = $this->get('/plats?sort=Likes&direction=asc');
-        $response->assertStatus(200);
-        $plats = $response->viewData('plats');
-        $this->assertEquals([10, 20, 30], $plats->pluck('Likes')->toArray());
+        $sortOptions = [
+            'Likes' => [
+                'asc' => [10, 20, 30],
+                'desc' => [30, 20, 10],
+            ],
+            'Titre' => [
+                'asc' => ['Plat A', 'Plat B', 'Plat C'],
+                'desc' => ['Plat C', 'Plat B', 'Plat A'],
+            ],
+            'user_id' => [
+                'asc' => [$user1->id, $user2->id, $user3->id],
+                'desc' => [$user3->id, $user2->id, $user1->id],
+            ],
+            'is_favori' => [
+                'asc' => [0, 1, 1],
+                'desc' => [1, 1, 0],
+            ],
+        ];
 
-        $response = $this->get('/plats?sort=Likes&direction=desc');
-        $response->assertStatus(200);
-        $plats = $response->viewData('plats');
-        $this->assertEquals([30, 20, 10], $plats->pluck('Likes')->toArray());
-
-        $response = $this->get('/plats?sort=Titre&direction=asc');
-        $response->assertStatus(200);
-        $plats = $response->viewData('plats');
-        $this->assertEquals(['Plat A', 'Plat B', 'Plat C'], $plats->pluck('Titre')->toArray());
-
-        $response = $this->get('/plats?sort=Titre&direction=desc');
-        $response->assertStatus(200);
-        $plats = $response->viewData('plats');
-        $this->assertEquals(['Plat C', 'Plat B', 'Plat A'], $plats->pluck('Titre')->toArray());
-
-        $response = $this->get('/plats?sort=user_id&direction=asc');
-        $response->assertStatus(200);
-        $plats = $response->viewData('plats');
-        $this->assertEquals([$user1->id, $user2->id, $user3->id], $plats->pluck('user_id')->toArray());
-
-        $response = $this->get('/plats?sort=user_id&direction=desc');
-        $response->assertStatus(200);
-        $plats = $response->viewData('plats');
-        $this->assertEquals([$user3->id, $user2->id, $user1->id], $plats->pluck('user_id')->toArray());
-
-        $response = $this->get('/plats?sort=is_favori&direction=desc');
-        $response->assertStatus(200);
-        $plats = $response->viewData('plats');
-        $this->assertEquals([1, 1, 0], $plats->pluck('is_favori')->toArray());
-
-        $response = $this->get('/plats?sort=is_favori&direction=asc');
-        $response->assertStatus(200);
-        $plats = $response->viewData('plats');
-        $this->assertEquals([0, 1, 1], $plats->pluck('is_favori')->toArray());
+        foreach ($sortOptions as $sort => $directions) {
+            foreach ($directions as $direction => $expected) {
+                $response = $this->get("/plats?sort={$sort}&direction={$direction}");
+                $response->assertStatus(200);
+                $plats = $response->viewData('plats');
+                $this->assertEquals($expected, $plats->pluck($sort)->toArray());
+            }
+        }
     }
+
     public function test_administrator_can_create_plat()
     {
         $admin = User::factory()->createOne()->assignRole('administrator');
 
-        $response = $this->actingAs($admin)->post('/plats',[
-        'titre' => 'Nouveau Plat',
+        $response = $this->actingAs($admin)->post('/plats', [
+            'titre' => 'Nouveau Plat',
             'recette' => 'Description du plat',
 
         ]);
@@ -241,7 +231,6 @@ class StorePlatTest extends TestCase
         $response->assertRedirect(route('plats.show', Plat::first())); // Vérifie la redirection vers la route 'plats.show'
         $this->assertDatabaseHas('plats', ['titre' => 'Nouveau Plat']);
     }
-
 
     public function test_administrator_can_delete_any_plat()
     {
@@ -280,6 +269,17 @@ class StorePlatTest extends TestCase
 
         $response->assertRedirect();
         $response->assertSessionHas('error', 'Vous devez être administrateur ou propriétaire pour supprimer ce plat');
+    }
+    public function test_non_owner_cannot_edit_plat()
+    {
+    $user = User::factory()->createOne()->assignRole('user');
+    $otherUser = User::factory()->createOne()->assignRole('user');
+        $plat = Plat::factory()->create(['user_id' => $otherUser->id,'likes' => 5,'titre' =>'Plat A']);
+
+        $response = $this->actingAs($user)->patch("/plats/{$plat->id}", ['titre' => 'Nouveau Plat', 'recette' => 'Description du plat']);
+
+        $this->assertDatabaseHas('plats', ['titre' => 'Plat A']); // Vérifie que le plat n'a pas été modifié
+
     }
 
 

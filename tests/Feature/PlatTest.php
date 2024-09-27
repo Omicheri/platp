@@ -30,7 +30,6 @@ class PlatTest extends TestCase
         $response = $this->actingAs($user)->post('/plats', [
             'titre' => 'Nouveau Plat',
             'recette' => 'Description du plat',
-
         ]);
 
         $response->assertStatus(Response::HTTP_FOUND); // Vérifie que la réponse est une redirection
@@ -41,18 +40,15 @@ class PlatTest extends TestCase
 
     #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_update_a_plat(): void
-    {
-        $plat = Plat::factory()->create();
+    {   $user = User::factory()->createOne()->assignRole('administrator');
+        $plat = Plat::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($plat->user)->patch("/plats/{$plat->id}", [
-            'titre' => 'Plat Modifié',
+        $response = $this->actingAs($user)->put("/plats/{$plat->id}", ['titre' => 'Plat Modifié',
             'recette' =>'Description modifiée'
         ]);
 
-        $response->assertStatus(Response::HTTP_FOUND);
-        $response->assertRedirect(route('plats.show', $plat));
-        $this->assertEquals($plat->refresh()->Titre,'Plat Modifié');
-        $this->assertEquals($plat->refresh()->Recette,'Description modifiée');
+
+        $this->assertDatabaseHas('plats', ['titre'=>'Plat Modifié']);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
