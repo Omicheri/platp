@@ -31,7 +31,7 @@ class CheckPlatOwnership
             }
         } elseif ($routeName === 'plats.edit' || $routeName === 'plats.update') {
             $plat = $request->route('plat');
-            if (!$user->hasRole('administrator') || $user->id !== $plat->user_id) {
+            if (!$user->hasRole('administrator') && $user->id !== $plat->user_id) {
                 return redirect()->back()->with('error', 'Vous devez être administrateur ou propriétaire pour update ce plat');
             }
         }

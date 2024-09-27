@@ -42,7 +42,6 @@ class StorePlatTest extends TestCase
             'likes' => 10,
         ]);
 
-
         $response->assertStatus(302);
         $response->assertSessionHasNoErrors();
     }

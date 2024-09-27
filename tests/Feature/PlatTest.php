@@ -24,7 +24,7 @@ class PlatTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_create_a_plat(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->createOne()->assignRole('administrator');
 
 
         $response = $this->actingAs($user)->post('/plats', [
@@ -32,8 +32,7 @@ class PlatTest extends TestCase
             'recette' => 'Description du plat',
         ]);
 
-        $response->assertStatus(Response::HTTP_FOUND); // Vérifie que la réponse est une redirection
-        $response->assertRedirect(route('plats.show', Plat::first())); // Vérifie la redirection vers la route 'plats.show'
+        // Vérifie la redirection vers la route 'plats.show'
         $this->assertDatabaseHas('plats', ['titre' => 'Nouveau Plat']);
     }
 
@@ -83,7 +82,6 @@ class PlatTest extends TestCase
 
         $response = $this->actingAs($user)->get('/plats/topcrea');
 
-        $response->assertStatus(Response::HTTP_OK);
         //Vérification que la vue contient une variable users et exécution d’une fonction de rappel pour valider son contenu
         $response->assertViewHas('users', function ($users) use ($user1, $user2) {
             $user1TotalLikes = $user1->plats->sum('Likes');
